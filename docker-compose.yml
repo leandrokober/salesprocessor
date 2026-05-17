@@ -1,0 +1,27 @@
+services:
+  # 1. BANCO DE DADOS (PostgreSQL)
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: sales-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: datainfo_user
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: db_sales_processor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. MENSAGERIA (RabbitMQ com painel de gerenciamento)
+  rabbitmq:
+    image: rabbitmq:3.11-management-alpine
+    container_name: sales-rabbitmq
+    ports:
+      - "5672:5672"   # Porta de comunicação que o Spring Boot vai usar
+      - "15672:15672" # Porta para você abrir o painel do RabbitMQ no navegador
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+volumes:
+  postgres_data: # Garante que os dados do banco não sumam quando o container parar
