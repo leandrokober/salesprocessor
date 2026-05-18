@@ -1,8 +1,8 @@
 # Sales Processor API
 
-API Spring Boot para processar vendas com persistencia em PostgreSQL, mensageria com RabbitMQ, idempotencia por ID da venda e geracao assincrona de comprovante PDF.
+API Spring Boot para processar vendas com persistência em PostgreSQL, mensageria com RabbitMQ, idempotência por ID da venda e geração assíncrona de comprovante PDF.
 
-O projeto foi estruturado para demonstrar um fluxo ponta a ponta simples, testavel e facil de avaliar em entrevista tecnica.
+O projeto foi estruturado para demonstrar um fluxo ponta a ponta simples, testável e fácil de avaliar.
 
 ## Stack
 
@@ -24,15 +24,15 @@ O projeto foi estruturado para demonstrar um fluxo ponta a ponta simples, testav
 1. O cliente envia um `POST /api/vendas` com o JSON da venda e o header `X-API-KEY`.
 2. O controller valida a API key mockada.
 3. O service aplica idempotencia pelo campo `id`.
-4. Se a venda ja existe, a API retorna `200 OK` com os dados existentes.
-5. Se a venda e nova, o sistema calcula imposto e valor liquido.
+4. Se a venda já existe, a API retorna `200 OK` com os dados existentes.
+5. Se a venda é nova, o sistema calcula imposto e valor líquido.
 6. A venda e salva no PostgreSQL com status `PENDENTE`.
 7. Apos o commit no banco, o publisher envia o ID da venda para o RabbitMQ.
 8. A API responde imediatamente `201 Created`.
-9. O consumer recebe a mensagem da fila de forma assincrona.
+9. O consumer recebe a mensagem da fila de forma assíncrona.
 10. O consumer verifica novamente se a venda ja foi processada.
 11. O sistema gera um comprovante PDF em `target/comprovantes/`.
-12. A venda e atualizada para `PROCESSADA`.
+12. A venda é atualizada para `PROCESSADA`.
 
 ## Endpoints
 
@@ -42,7 +42,7 @@ O projeto foi estruturado para demonstrar um fluxo ponta a ponta simples, testav
 http://localhost:8080/swagger-ui/index.html
 ```
 
-O Swagger esta liberado sem login/senha para facilitar a avaliacao.
+O Swagger está liberado sem login/senha para facilitar a avaliacao.
 
 ### Criar venda
 
@@ -56,7 +56,7 @@ Header obrigatorio:
 X-API-KEY: sales-token-secreto-123
 ```
 
-Importante: a API key e validada exatamente como definida. Espacos extras ou valores diferentes retornam `401 Unauthorized`.
+Importante: a API key é validada exatamente como definida. Espaços extras ou valores diferentes retornam `401 Unauthorized`.
 
 Body de exemplo:
 
@@ -77,7 +77,7 @@ Respostas esperadas:
 401 Unauthorized API key ausente ou invalida
 ```
 
-Erros sao retornados em formato padronizado:
+Erros são retornados em formato padronizado:
 
 ```json
 {
@@ -99,7 +99,7 @@ Na raiz do projeto:
 docker compose up -d
 ```
 
-Servicos expostos:
+Serviços expostos:
 
 ```text
 PostgreSQL: localhost:5432
@@ -122,13 +122,13 @@ usuario: datainfo_user
 senha: password123
 ```
 
-### 2. Rodar a aplicacao
+### 2. Rodar a aplicação
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-A API subira em:
+A API subirá em:
 
 ```text
 http://localhost:8080
@@ -156,7 +156,7 @@ Use um JSON como:
 }
 ```
 
-## Como Testar a Idempotencia
+## Como Testar a Idempotência
 
 1. Envie o `POST /api/vendas` com um ID novo, por exemplo:
 
@@ -182,7 +182,7 @@ Resultado esperado:
 200 OK
 ```
 
-Observacao: a idempotencia usa o ID exato da venda. Por exemplo, `VENDA-002` e `VENDA-0002` sao IDs diferentes.
+Observação: a idempotência usa o ID exato da venda. Por exemplo, `VENDA-002` e `VENDA-0002` sao IDs diferentes.
 
 ## Como Validar no Banco
 
@@ -245,13 +245,13 @@ Verificar fila via terminal:
 docker exec sales-rabbitmq rabbitmqctl list_queues name messages_ready messages_unacknowledged consumers
 ```
 
-Resultado esperado apos processamento:
+Resultado esperado após processamento:
 
 ```text
 venda.processada.queue  0  0  1
 ```
 
-Isso indica que existe um consumer ativo e que nao ha mensagem parada na fila.
+Isso indica que existe um consumer ativo e que não há mensagem parada na fila.
 
 ## Como Validar o PDF
 
@@ -275,7 +275,7 @@ target/comprovantes/comprovante-VENDA-001.pdf
 
 ## Logs Importantes
 
-Os logs de negocio aparecem na aplicacao Spring Boot, nao no log do RabbitMQ.
+Os logs de negócio aparecem na aplicação Spring Boot, não no log do RabbitMQ.
 
 Exemplo esperado:
 
@@ -287,7 +287,7 @@ Sale receipt PDF generated. saleId=VENDA-001, filePath=...\target\comprovantes\c
 Sale processing completed. saleId=VENDA-001, status=PROCESSADA
 ```
 
-O RabbitMQ normalmente mostra conexoes, autenticacao e estado do broker, por exemplo:
+O RabbitMQ normalmente mostra conexões, autenticação e estado do broker, por exemplo:
 
 ```text
 accepting AMQP connection
@@ -302,20 +302,20 @@ user 'guest' authenticated and granted access to vhost '/'
 
 Os testes cobrem:
 
-- Validacao da API key
+- Validação da API key
 - Tratamento global de erros
 - Retorno `201 Created` para venda nova
-- Retorno `200 OK` para venda ja existente
-- Idempotencia no service
-- Publicacao apos commit da transacao
+- Retorno `200 OK` para venda já existente
+- Idempotêmcia no service
+- Publicação após commit da transação
 - Consumer ignorando mensagem duplicada
-- Geracao de comprovante PDF
+- Geração de comprovante PDF
 
 ## Troubleshooting
 
 ### Swagger continua mostrando comportamento antigo
 
-Reinicie a aplicacao Spring Boot. Alteracoes em Java so entram apos recompilar/reiniciar.
+Reinicie a aplicação Spring Boot. Alterações em Java só entram apos recompilar/reiniciar.
 
 ```powershell
 Ctrl + C
@@ -330,9 +330,9 @@ Verificar processo:
 Get-NetTCPConnection -LocalPort 8080 -State Listen
 ```
 
-### RabbitMQ nao conecta
+### RabbitMQ não conecta
 
-Verifique se o container esta rodando:
+Verifique se o container está rodando:
 
 ```powershell
 docker ps
@@ -344,7 +344,7 @@ Verifique logs:
 docker logs --tail 100 sales-rabbitmq
 ```
 
-### Banco recusou conexao
+### Banco recusou conexão
 
 Suba o Docker Compose:
 
@@ -352,10 +352,10 @@ Suba o Docker Compose:
 docker compose up -d
 ```
 
-## Observacoes Tecnicas
+## Observações Técnicas
 
-- A API key e propositalmente mockada para simplificar a avaliacao.
+- A API key é propositalmente mockada para simplificar a avaliação.
 - O Swagger foi liberado sem login para facilitar testes por recrutadores.
-- A publicacao no RabbitMQ ocorre apenas apos o commit da transacao no banco.
-- O retorno inicial da venda nova pode mostrar `PENDENTE`, pois o processamento do PDF e assincrono.
-- A confirmacao final do fluxo e o status `PROCESSADA` no banco e o PDF criado em `target/comprovantes/`.
+- A publicação no RabbitMQ ocorre apenas após o commit da transação no banco.
+- O retorno inicial da venda nova pode mostrar `PENDENTE`, pois o processamento do PDF é assíncrono.
+- A confirmação final do fluxo e o status `PROCESSADA` no banco e o PDF criado em `target/comprovantes/`.
